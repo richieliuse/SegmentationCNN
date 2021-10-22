@@ -13,7 +13,9 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.callbacks import EarlyStopping
-from keras.optimizers import SGD
+from tensorflow.keras.optimizers import SGD
+import tensorflow as tf
+
 
 np.random.seed(1234)  # for reproducibility
 
@@ -88,6 +90,17 @@ def train_model(batch_size=128, nb_epoch=100, save_ext='_100epochs_lr005', weigh
     :param save_ext: extension for loading dataset and saving results
     :param weights_file: path to file with pretrained weights for continueing training
     """
+
+    # config cuda memory
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            # tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=6144)])
+        except RuntimeError as e:
+            print(e)
+
 
     print('loading training data...')
     X_train, y_train, w_train = load_training_data('../Data/trainDataNormalized.npz')
